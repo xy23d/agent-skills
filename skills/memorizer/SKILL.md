@@ -2,7 +2,7 @@
 name: memorizer
 description: >
   コンテキスト管理スキル。作業コンテキストをトピック別ファイルに保存・ロード・一覧表示する。
-  `/memorizer` で初期化、`/memorizer save [topic]` で保存、
+  `/memorizer new <topic>` で空トピック作成、`/memorizer save [topic]` で保存、
   `/memorizer load <topic...>` でロード、`/memorizer list` で一覧。
 ---
 
@@ -111,6 +111,40 @@ depends_on:
 ```
 
 `index.md` が存在しない、またはトピックがない場合は「コンテキストなし」と表示する。
+
+---
+
+## `/memorizer new <topic>` — 空トピック作成
+
+### Step 1 — 重複チェック
+
+`memory/contexts/{topic}.md` が既に存在する場合は「コンテキスト `{topic}` は既に存在します」と報告して終了。
+
+### Step 2 — ファイル作成
+
+以下の内容で `memory/contexts/{topic}.md` を作成する：
+
+```markdown
+---
+topic: {topic}
+updated: {date}
+---
+
+## 現在の状態
+
+
+## 決定事項
+
+
+## 次のアクション
+
+```
+
+### Step 3 — index.md 更新
+
+`memory/contexts/index.md` に `{topic}` の行を追加する。`現在の状態` は空のため `-` を使う。
+
+完了を報告する。
 
 ---
 
