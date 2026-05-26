@@ -1,0 +1,39 @@
+# 対象ディレクトリ
+contexts:
+  - ~/log
+
+# 読み込むファイル
+include:
+  - "**/*.md"
+
+# 除外するファイル・ディレクトリ
+exclude:
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/vendor/**"
+  - "**/README.md"
+  - "**/CHANGELOG.md"
+  - "**/LICENSE.md"
+  - "**/package-lock.md"
+  - "**/*.template.md"
+
+# 対象期間
+lookback_days: 30
+
+# ファイル上限
+max_file_size_kb: 256
+max_files: 300
+
+# 通知する最低スコア
+min_score: 4
+
+# 既存資産として照合する場所
+existing_assets:
+  skills:
+    - .claude/skills
+  cli:
+    - .claude/skills/scripts
+  rules:
+    - AGENTS.md
