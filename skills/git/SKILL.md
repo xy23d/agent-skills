@@ -41,12 +41,14 @@ bash <base_dir>/scripts/find-commit.sh <hash> [dir]
 ### 手順
 
 1. 子ブランチのworktreeで `git rebase <parent>` を実行
-2. コンフリクト発生時は **HEAD（親ブランチ）を優先** する
-   - 既存ファイルの変更が競合した場合 → HEADの内容を採用
-   - 子ブランチ固有の追加（新規ファイル、親に存在しないメソッド）のみ incoming から取り込む
-   - 判断基準：「この変更は親ブランチにすでにあるか？」→ あればHEAD、なければ取り込む
-3. `git add <file> && git rebase --continue` で続行
+2. コンフリクト発生時は `git rebase --abort` して**ユーザーに報告して終了**する
+   - コンフリクトしたファイル一覧と概要を報告する
+   - 自己判断での解決をしない
 
 ### worktreeの場所
 
-ブランチ名からworktreeパスを解決する：`rails-worktrees/<branch-name>/`
+ブランチ名からworktreeパスを解決する：
+
+```bash
+git worktree list --porcelain | grep -B2 "branch refs/heads/<branch-name>" | head -1
+```
