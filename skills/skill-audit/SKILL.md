@@ -1,6 +1,6 @@
 ---
 name: skill-audit
-description: context/log系Markdownをスキャンして、スキル化・CLI化・context化・eval化候補を検出し、日次cronで通知する。
+description: context/log系Markdownをスキャンして、スキル化・CLI化・context化・eval化候補を検出し通知する。
 ---
 
 # skill-audit
@@ -19,8 +19,8 @@ description: context/log系Markdownをスキャンして、スキル化・CLI化
 
 目的は「スキルを量産すること」ではなく、ユーザーの行動を観測し、再利用価値のあるものだけを適切な形式に昇格させること。
 
-原則として、このスキルは **候補検出と通知まで** を行う。  
-本番の skill / CLI / context / cron を自動作成してはいけない。  
+原則として、このスキルは **候補検出と通知まで** を行う。
+本番の skill / CLI / context / cron を自動作成してはいけない。
 作成する場合も draft までに留め、promotion はユーザー承認後に行う。
 
 ---
@@ -134,18 +134,6 @@ risk: 自動化・形式化する場合のリスク
 ### Step 5 — 既存資産と照合する
 
 `targets.md` の `existing_assets` に指定された場所を確認し、既存の形式化資産と照合する。
-
-照合対象：
-
-- `~/.hermes/skills/`
-- `.claude/skills/`
-- repo内 `skills/`
-- CLI / scripts
-- context / memorizer topics
-- AGENTS.md
-- CLAUDE.md
-- eval / check scripts
-- cron jobs / scheduled tasks
 
 判定：
 
@@ -299,7 +287,7 @@ risk: 自動化・形式化する場合のリスク
 -2 単なるコマンド列でskillにする必要が薄い
 ```
 
-`min_score` 以上の候補だけ通知する。  
+`min_score` 以上の候補だけ通知する。
 デフォルトは `4`。
 
 ---
@@ -358,7 +346,6 @@ risk: 自動化・形式化する場合のリスク
 ユーザーが明示的に許可した場合のみ、以下のような draft を作成してよい。
 
 ```text
-~/.hermes/factory/drafts/
   skills/
   cli/
   contexts/
@@ -368,7 +355,7 @@ risk: 自動化・形式化する場合のリスク
 
 draft作成時の原則：
 
-- 本番の `~/.hermes/skills` や repo scripts を直接変更しない
+- 本番の repo scripts を直接変更しない
 - 既存資産への上書きをしない
 - 副作用のあるCLIは作らない
 - CLI案はまず `check` / `list` / `dry-run` から始める
@@ -403,7 +390,7 @@ draft作成時の原則：
 - 顧客情報
 - 未公開の事業情報
 
-通知には、秘密情報や長文引用を含めない。  
+通知には、秘密情報や長文引用を含めない。
 根拠としてはファイルパス・短い要約・行番号程度に留める。
 
 ---
@@ -412,27 +399,27 @@ draft作成時の原則：
 
 ### 1. skillを増やしすぎる
 
-目的はskill数を増やすことではない。  
+目的はskill数を増やすことではない。
 既存skillに統合できるなら、新規作成ではなく更新候補にする。
 
 ### 2. CLI化すべきものをskill化する
 
-手順が機械的で入出力が明確なら、skillではなくCLIにする。  
+手順が機械的で入出力が明確なら、skillではなくCLIにする。
 skillは「いつ使うか」「どう判断するか」を書く場所。
 
 ### 3. READMEやdocsを実作業ログとして扱う
 
-Markdown全体を読む場合、静的docsが大量に混ざる。  
+Markdown全体を読む場合、静的docsが大量に混ざる。
 実作業ログ・日報・session summary・notes を優先し、README等は低優先度にする。
 
 ### 4. 自動作成しすぎる
 
-cronで本番skillやCLIを自動生成すると、すぐにゴミが増える。  
+cronで本番skillやCLIを自動生成すると、すぐにゴミが増える。
 原則は `candidate → draft → review → promote → prune`。
 
 ### 5. pruneを忘れる
 
-使われないskill/CLI/contextは運用負債になる。  
+使われないskill/CLI/contextは運用負債になる。
 月次で未使用・重複・古い資産を見直す。
 
 ---
@@ -484,10 +471,10 @@ Markdownログをスキャン
   - README等の静的docsを誤検出する可能性
 
 ### スキル候補
-- 個人agent運用方針: ~/.hermes/context/agent-ops.md で2回 — 判断基準が繰り返されている
+- 個人agent運用方針: ~/context/agent-ops.md で2回 — 判断基準が繰り返されている
 
 ### CLI候補
-- Markdownログ監査: ~/repos/nu/notes/daily.md で3回 — 入出力が明確でdry-run可能
+- Markdownログ監査: ~/context/agent-ops.md で3回 — 入出力が明確でdry-run可能
 
 ### eval / check候補
 - SKILL.md品質チェック: skills配下で2回 — frontmatterや停止条件の漏れを機械検査できる
