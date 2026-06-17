@@ -29,6 +29,9 @@ max_files: 300
 # 通知する最低スコア
 min_score: 4
 
+# スキル使用ログ（任意。scripts/log-skill-usage.sh をPostToolUse(Skill)フックに登録して収集）
+# usage_log: ~/.claude/skill-usage.log
+
 # 既存資産として照合する場所
 existing_assets:
   skills:
