@@ -1,12 +1,16 @@
 #!/bin/bash
-# Usage: rebuild-index.sh [contexts_dir]
+# Usage: rebuild-index.sh <contexts_dir>
 # {topic}.md 群から index.md を機械的に再生成する。
 # - updated はフロントマターの updated:
 # - summary は「## 現在の状態」セクションの最初の非空行
 # - フロントマターに merged_into: があるトピック（統合済み）は除外する
 set -euo pipefail
 
-DIR="${1:-./memory/contexts}"
+if [ -z "${1:-}" ]; then
+  echo "Usage: rebuild-index.sh <contexts_dir>" >&2
+  exit 1
+fi
+DIR="$1"
 if [ ! -d "$DIR" ]; then
   echo "コンテキストディレクトリがありません: $DIR" >&2
   exit 1

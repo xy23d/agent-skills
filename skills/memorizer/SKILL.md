@@ -157,7 +157,7 @@ updated: {date}
 ### Step 3 — index.md 再生成
 
 ```bash
-bash {BASE_DIR}/scripts/rebuild-index.sh
+bash {BASE_DIR}/scripts/rebuild-index.sh ./memory/contexts
 ```
 
 完了を報告する。
@@ -182,7 +182,7 @@ bash {BASE_DIR}/scripts/rebuild-index.sh
 ### Step 3 — index.md 再生成
 
 ```bash
-bash {BASE_DIR}/scripts/rebuild-index.sh
+bash {BASE_DIR}/scripts/rebuild-index.sh ./memory/contexts
 ```
 
 updated・summary は各 `{topic}.md` から機械的に導出される（summary は `現在の状態` の最初の非空行）。
@@ -281,7 +281,7 @@ bash {BASE_DIR}/scripts/archive.sh [days]
      - {topic-b}
    ```
 2. 旧トピックのファイル・ディレクトリは削除せず残す（context-logの参照先として保持）。旧 `{topic}.md` のフロントマターに `merged_into: {merged-topic}` を追記する（index再生成時の除外マーカー）
-3. `index.md` を再生成する：`bash {BASE_DIR}/scripts/rebuild-index.sh`
+3. `index.md` を再生成する：`bash {BASE_DIR}/scripts/rebuild-index.sh ./memory/contexts`
 
 ### Step 4 — 報告
 
