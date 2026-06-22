@@ -1,6 +1,6 @@
 ---
 name: codex-delegate
-description: Codexにコード実装を委譲するスキル。`/codex-delegate <worktree>` の形式で呼ぶ。実装タスクが生じたときにCodexへ渡すために使う。実装方法を自分で考え始めたらこのスキルを使うサイン。
+description: Codexにコード実装を委譲するスキル。`/codex-delegate worktree_path` の形式で呼ぶ。実装タスクが生じたときにCodexへ渡すために使う。実装方法を自分で考え始めたらこのスキルを使うサイン。
 ---
 
 # codex-delegate
@@ -28,6 +28,21 @@ description: Codexにコード実装を委譲するスキル。`/codex-delegate 
 
 複雑な指示をプロンプト直書きするとstdin読み込みでハングするため、指示ファイルに書いてから渡す。
 
+### 追加資料の選定
+
+委譲コマンドを実行する前に、呼び出し元プロジェクトの Git ルートにある `.delegate-context` を確認する。設定が存在する場合は次を行う。
+
+1. `scripts/list-delegate-context.sh` を実行し、設定されたディレクトリ配下の Markdown 候補を得る。
+2. 候補の内容を確認し、現在のタスクに適用すべき資料だけを選定する。全候補を無条件に選ばない。
+3. 選定したファイルの絶対パスを1行1件で `/tmp/codex-inputs/<task>-context.txt` に書く。
+4. 実行スクリプトの第4引数にそのファイルを渡す。委譲先には選定済み資料だけが明示される。
+
+候補がない、または適用対象がない場合は選定ファイルを作らず、従来どおり第3引数までで実行する。`.delegate-context` の空行、行頭が `#` のコメント、不存在ディレクトリは候補から除外される。相対パスは呼び出し元プロジェクトの Git ルート基準で解決される。この仕組みはコンテキスト資料の選定であり、`depends_on` の依存関係解決には使用しない。
+
+```bash
+bash {BASE_DIR}/scripts/list-delegate-context.sh
+```
+
 スクリプトは `scripts/codex-exec.sh` に同梱済み。スキル起動時に示されるベースディレクトリ（"Base directory for this skill: ..."）を使って実行する。
 
 指示ファイルは使い捨てのため、スキルディレクトリ内ではなく `/tmp/codex-inputs/` に作成する。
@@ -35,6 +50,9 @@ description: Codexにコード実装を委譲するスキル。`/codex-delegate 
 ```bash
 mkdir -p /tmp/codex-inputs
 bash {BASE_DIR}/scripts/codex-exec.sh <worktree_path> <task>.md /tmp/codex-inputs
+
+# 追加資料を選定した場合
+bash {BASE_DIR}/scripts/codex-exec.sh <worktree_path> <task>.md /tmp/codex-inputs /tmp/codex-inputs/<task>-context.txt
 ```
 
 バックグラウンドで複数worktreeを並列実行する場合は `run_in_background: true` で Bash を呼ぶ。
