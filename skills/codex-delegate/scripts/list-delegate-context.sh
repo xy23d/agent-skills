@@ -1,12 +1,13 @@
 #!/bin/bash
-# Usage: list-delegate-context.sh [project_path]
-# .delegate-context に列挙されたディレクトリ配下の Markdown を候補として出力する。
+# Usage: list-delegate-context.sh
+# このスクリプトが属するスキル直下の .delegate-context に列挙された
+# ディレクトリ配下の Markdown を候補として出力する。
 set -euo pipefail
 
-PROJECT_PATH="${1:-$PWD}"
-PROJECT_ROOT="$(git -C "$PROJECT_PATH" rev-parse --show-toplevel 2>/dev/null || true)"
+SKILL_ROOT="$(dirname "$(dirname "$(readlink -f "$0")")")"
+CONTEXT_FILE="$SKILL_ROOT/.delegate-context"
 
-if [ -z "$PROJECT_ROOT" ] || [ ! -f "$PROJECT_ROOT/.delegate-context" ]; then
+if [ ! -f "$CONTEXT_FILE" ]; then
   exit 0
 fi
 
@@ -17,7 +18,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
 
   if [[ "$path" != /* ]]; then
-    path="$PROJECT_ROOT/$path"
+    path="$SKILL_ROOT/$path"
   fi
 
   if [ ! -d "$path" ]; then
@@ -26,5 +27,5 @@ while IFS= read -r line || [ -n "$line" ]; do
   fi
 
   resolved_path="$(readlink -f "$path")"
-  find "$resolved_path" -type f \( -iname '*.md' -o -iname '*.markdown' \) -print
-done < "$PROJECT_ROOT/.delegate-context" | LC_ALL=C sort -u
+  find "$resolved_path" -type f \( -iname '*.md' -o -iname '*.markdown' \) ! -name 'index.md' -print
+done < "$CONTEXT_FILE" | LC_ALL=C sort -u

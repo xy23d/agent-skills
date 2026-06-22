@@ -30,17 +30,17 @@ description: claudeにコード実装を委譲するスキル。`/claude-delegat
 
 ### 追加資料の選定
 
-委譲コマンドを実行する前に、呼び出し元プロジェクトの Git ルートにある `.delegate-context` を確認する。設定が存在する場合は次を行う。
+委譲コマンドを実行する前に、スキル直下の `.delegate-context` を確認する。設定が存在する場合は次を行う。
 
-1. `scripts/list-delegate-context.sh` を実行し、設定されたディレクトリ配下の Markdown 候補を得る。
-2. 候補の内容を確認し、現在のタスクに適用すべき資料だけを選定する。全候補を無条件に選ばない。
-3. 選定したファイルの絶対パスを1行1件で `/tmp/claude-inputs/<task>-context.txt` に書く。
+1. `scripts/gen-delegate-index.sh` を実行し、各資料ディレクトリ直下の `index.md`（ファイル名＋1行要約）を最新化する。
+2. 各ディレクトリの `index.md` を読み、**要約だけ**を見て現在のタスクに適用すべき資料を選定する。資料本体（各 `.md`）は読まない。全件を無条件に選ばない。
+3. 選定したファイルの絶対パスを1行1件で `/tmp/claude-inputs/<task>-context.txt` に書く（候補の絶対パス一覧は `scripts/list-delegate-context.sh` で確認できる）。
 4. 実行スクリプトの第4引数にそのファイルを渡す。委譲先には選定済み資料だけが明示される。
 
-候補がない、または適用対象がない場合は選定ファイルを作らず、従来どおり第3引数までで実行する。`.delegate-context` の空行、行頭が `#` のコメント、不存在ディレクトリは候補から除外される。相対パスは呼び出し元プロジェクトの Git ルート基準で解決される。この仕組みはコンテキスト資料の選定であり、`depends_on` の依存関係解決には使用しない。
+候補がない、または適用対象がない場合は選定ファイルを作らず、従来どおり第3引数までで実行する。`.delegate-context` の空行、行頭が `#` のコメント、不存在ディレクトリは候補から除外される。相対パスはスキルディレクトリ基準で解決される。資料の追加・更新後は手順1で index を再生成して鮮度を保つ。この仕組みはコンテキスト資料の選定であり、`depends_on` の依存関係解決には使用しない。
 
 ```bash
-bash {BASE_DIR}/scripts/list-delegate-context.sh
+bash {BASE_DIR}/scripts/gen-delegate-index.sh
 ```
 
 スクリプトは `scripts/claude-exec.sh` に同梱済み。スキル起動時に示されるベースディレクトリ（"Base directory for this skill: ..."）を使って実行する。
