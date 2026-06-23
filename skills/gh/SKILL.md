@@ -3,6 +3,7 @@ name: gh
 description: >
   GitHub PRの未解決レビューコメントを一覧表示するスキル（read-only、resolve等の操作はしない）。
   `/gh pr <number>` でresolve済みを除いたopenなレビューコメントを一覧表示する。
+  `/gh pr <pr_url>` または `/gh pr <number> <owner/repo>` でカレント外リポジトリも指定できる。
   PRレビュー対応時に「未解決コメントだけ確認したい」場面で使うこと。
 ---
 
@@ -15,8 +16,10 @@ description: >
 スクリプトは `scripts/pr-comments.sh` に同梱済み。スキル起動時に示されるベースディレクトリ（"Base directory for this skill: ..."）を使って実行する。
 
 ```bash
-bash {BASE_DIR}/scripts/pr-comments.sh <number>
+bash {BASE_DIR}/scripts/pr-comments.sh <number|pr_url> [owner/repo]
 ```
+
+カレントリポジトリ以外のPRは、PR URL を渡すか第2引数に `owner/repo` を指定する。どちらも無ければカレントリポジトリにフォールバックする。
 
 ### 出力フォーマット
 
