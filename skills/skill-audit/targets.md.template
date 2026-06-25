@@ -1,42 +1,21 @@
-# 対象ディレクトリ
-contexts:
-  - ~/log
+# 日付別ログ(<date>.log)を持つディレクトリ。複数指定可（すべて同じ形式である前提）
+target:
+  - .claude/skills/skill-audit/logs/commands
 
-# 読み込むファイル
-include:
-  - "**/*.md"
-
-# 除外するファイル・ディレクトリ
-exclude:
-  - "**/node_modules/**"
-  - "**/.git/**"
-  - "**/dist/**"
-  - "**/build/**"
-  - "**/vendor/**"
-  - "**/README.md"
-  - "**/CHANGELOG.md"
-  - "**/LICENSE.md"
-  - "**/package-lock.md"
-  - "**/*.template.md"
-
-# 対象期間
+# 集計対象とする期間（日数）
 lookback_days: 30
-
-# ファイル上限
-max_file_size_kb: 256
-max_files: 300
 
 # 通知する最低スコア
 min_score: 4
 
-# スキル使用ログ（任意。scripts/log-skill-usage.sh をPostToolUse(Skill)フックに登録して収集）
-# usage_log: ~/.claude/skill-usage.log
-
 # 既存資産として照合する場所
 existing_assets:
   skills:
+    - ~/.claude/skills
     - .claude/skills
   cli:
-    - .claude/skills/scripts
+    - ./**/scripts
   rules:
+    - CLAUDE.md
     - AGENTS.md
+    - docs/agent/
