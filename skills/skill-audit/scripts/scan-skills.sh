@@ -1,5 +1,6 @@
 #!/bin/bash
 # Usage: scan-skills.sh [targets.md path]
+# existing_assets.skills の相対パスは、実行時の CWD を基準に解決する。
 # existing_assets.skills 配下の SKILL.md 行数と skill-usage.log の最終利用日を集計する。
 # 読み取り専用。100行超、未使用、30日超を決定的に抽出し、内容判断は呼び出し元に委ねる。
 set -euo pipefail
@@ -34,14 +35,17 @@ trap 'rm -f "$TMP"' EXIT
 while IFS= read -r pattern; do
   [ -z "$pattern" ] && continue
   pattern="${pattern/#\~/$HOME}"
+  matched=0
   while IFS= read -r root; do
+    matched=1
     [ -e "$root" ] || continue
     if [ -f "$root" ] && [ "$(basename "$root")" = "SKILL.md" ]; then
       printf '%s\n' "$root"
     elif [ -d "$root" ]; then
-      find "$root" -type f -name SKILL.md -print
+      find -L "$root" -type f -name SKILL.md -print
     fi
   done < <(compgen -G "$pattern" || true)
+  [ "$matched" -eq 1 ] || echo "警告: existing_assets.skills のパターンに一致する対象がありません: $pattern" >&2
 done < <(get_skill_paths) | sort -u > "$TMP"
 
 echo "## SKILL.md 行数"
