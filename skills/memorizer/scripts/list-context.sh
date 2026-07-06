@@ -28,4 +28,4 @@ awk -F' *\\| *' '
     $c[3] = substr($c[3], 0, $m-1) . "\x{2026}" if length($c[3]) > $m;
     print join("\t", @c), "\n";
   ' \
-| column -t -s$'\t' -N "topic,updated,last_loaded,summary"
+| { printf 'topic\tupdated\tlast_loaded\tsummary\n'; cat; } | column -t -s$'\t'

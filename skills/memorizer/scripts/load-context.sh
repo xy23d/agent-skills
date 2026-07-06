@@ -8,13 +8,13 @@ set -euo pipefail
 DIR="./memory/contexts"
 today=$(date +%F)
 
-declare -A seen
+seen=" "
 order=()
 
 resolve() {
   local t="$1"
-  [ -n "${seen[$t]:-}" ] && return
-  seen[$t]=1
+  case "$seen" in *" $t "*) return ;; esac
+  seen="$seen$t "
   local f="$DIR/$t.md"
   if [ ! -f "$f" ]; then
     echo "MISSING:$t"
@@ -38,9 +38,9 @@ done
 for t in "${order[@]}"; do
   f="$DIR/$t.md"
   if grep -q '^last_loaded:' "$f"; then
-    sed -i "s/^last_loaded:.*/last_loaded: $today/" "$f"
+    perl -pi -e "s/^last_loaded:.*/last_loaded: $today/" "$f"
   else
-    sed -i "0,/^---$/{s/^---$/---\nlast_loaded: $today/}" "$f"
+    perl -pi -e 'if (!$done && /^---$/) { $_ .= "last_loaded: '"$today"'\n"; $done = 1 }' "$f"
   fi
   echo "$f"
 done
