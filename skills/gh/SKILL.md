@@ -1,9 +1,11 @@
 ---
 name: gh
 description: >
-  GitHub PRの未解決レビューコメントを一覧表示するスキル（read-only、resolve等の操作はしない）。
+  GitHub PRの未解決レビューコメント一覧表示とDraft PR作成を行うスキル。
+  レビューコメント一覧はread-onlyで、resolve等の操作はしない。
   `/gh pr <number>` でresolve済みを除いたopenなレビューコメントを一覧表示する。
   `/gh pr <pr_url>` または `/gh pr <number> <owner/repo>` でカレント外リポジトリも指定できる。
+  PRを作成するときは `gh pr create` を直接叩かず `/gh create` を使う。PRはDraftで作成される。
   PRレビュー対応時に「未解決コメントだけ確認したい」場面で使うこと。
 ---
 
@@ -33,3 +35,19 @@ bash {BASE_DIR}/scripts/pr-comments.sh <number|pr_url> [owner/repo]
 resolve済みスレッドは表示しない。スレッドが0件の場合は「未解決コメントなし」と表示する。
 
 `gh repo view` が失敗する場合（リモートなし等）はユーザーに手動入力を求める。
+
+## `/gh create <worktree_path>`
+
+指定したworktreeのカレントブランチからDraft PRを作成する。
+
+スクリプトは `scripts/pr-create.sh` に同梱済み。スキル起動時に示されるベースディレクトリ（"Base directory for this skill: ..."）を使って実行する。
+
+```bash
+bash {BASE_DIR}/scripts/pr-create.sh <worktree_path> <title> <body_file> [base]
+```
+
+`title` は引数で渡す。`body` はLLMが一時ファイルに書き出し、そのファイルパスを `body_file` として渡す。
+
+このサブコマンドは常にDraft PRを作成する。ready PRは作成しない。
+
+`base` は任意。省略時は `gh pr create` の既定に従い、baseリポジトリのデフォルトブランチが使われる。
