@@ -1,0 +1,5 @@
+*
+!.gitignore
+!find-commit.sh
+!remove-worktree.sh
+!worktrees.sh

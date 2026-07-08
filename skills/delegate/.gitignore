@@ -1,5 +1,5 @@
 *
 !.gitignore
+!inputs
 !scripts
 !SKILL.md
-!targets.md.template

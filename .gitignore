@@ -1,2 +1,4 @@
-skills/delegate/inputs/*
-!skills/delegate/inputs/_template.md
+*
+!.gitignore
+!skills
+!LICENSE

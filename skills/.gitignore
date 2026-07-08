@@ -1,0 +1,9 @@
+*
+!.gitignore
+!delegate
+!gh
+!git
+!memorizer
+!persist-check
+!preflight
+!skill-audit

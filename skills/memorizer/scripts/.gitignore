@@ -1,0 +1,10 @@
+*
+!.gitignore
+!append-log.sh
+!archive.sh
+!list-context.sh
+!load-context.sh
+!mark-merged.sh
+!new-context.sh
+!rebuild-index.sh
+!save-context.sh
