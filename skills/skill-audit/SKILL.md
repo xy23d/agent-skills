@@ -1,6 +1,6 @@
 ---
 name: skill-audit
-description: `/skill-audit [all|logs|bloat|dedup]` でログ由来候補、SKILL.md肥大、重複を一括または個別監査する。引数なしはall。「ルールの二重定義チェック」「設定/SKILLの重複を見て」「二重管理になってないか確認して」はdedupを使う。検出と報告のみで修正しない。
+description: `/skill-audit [all|logs|retire|bloat|dedup]` でログ由来候補、未使用スキル退避、SKILL.md肥大、重複を一括または個別監査する。引数なしはall。「使ってないスキルの整理」はretire、「ルールの二重定義チェック」「設定/SKILLの重複を見て」「二重管理になってないか確認して」はdedupを使う。検出と報告のみで修正しない。
 ---
 
 # skill-audit
@@ -9,9 +9,10 @@ description: `/skill-audit [all|logs|bloat|dedup]` でログ由来候補、SKILL
 
 ## 呼び出し
 
-- `/skill-audit` または `/skill-audit all`: `logs`、`bloat`、`dedup` の全観点を実行する。
+- `/skill-audit` または `/skill-audit all`: `logs`、`retire`、`bloat`、`dedup` の全観点を実行する。
 - `/skill-audit logs`: ログの反復パターンから skill / CLI / context / eval / cron / rules 候補を検出する。
-- `/skill-audit bloat`: SKILL.md の行数・利用状況と内容から圧縮・script化候補を検出する。
+- `/skill-audit retire`: 利用実績から未使用・長期未利用スキルの退避候補を検出する。
+- `/skill-audit bloat`: SKILL.md の行数と内容から圧縮・script化候補を検出する。
 - `/skill-audit dedup`: ルール二重定義・スキル間重複を意図で検出し、canonical を提案する。
 
 個別実行では指定外の観点を一切実行しない。各個別実行は独立してcron設定・並列実行できる。未知の引数は使用法を表示して終了する。
@@ -43,9 +44,13 @@ repo固有の権限・禁止・停止条件     → AGENTS.md/CLAUDE.md
 2. 期間内ログから同じ作業・判断・失敗・探索・出力形式・周期確認と「毎回」「また」「手で」「面倒」「忘れがち」等を意味的に抽出する。目的・入出力・判断基準でまとめ、原則1回限りは除く（形式化の明示があれば例外）。
 3. 各クラスタを `name`, `type`, `evidence`（file/excerpt/date）, `count`, `confidence`, `reason`, `risk` で整理し、`existing_assets` と照合する。未形式化=新規、一部済み=更新、済み=非通知、重複気味=統合/prune とし、下記で採点して `min_score` 以上だけを通知する。秘密や長文は evidence に載せない。
 
+### retire
+
+`bash {BASE_DIR}/scripts/scan-skills.sh` だけを実行し、出力のうち「未使用・30日超」セクションだけを使う（行数セクションは読まない）。`skill-usage.log` がなければ「使用ログなし: 退避判定不能」と報告して停止する。未使用・長期未利用の各スキルについて、cron 定義・hook・他スキルからの参照有無を確認し、参照が生きていないものだけを退避候補として挙げる。使用ログの記録開始日より古い期間は「未計測」であり「未使用」と断定しない。
+
 ### bloat
 
-`bash {BASE_DIR}/scripts/scan-skills.sh` だけを実行し、各 SKILL.md の行数、100行超、未使用、最終利用から30日超を集計する。使用ログがなければ利用監査だけ省略する。100行超は内容を読み、決定的記述が大半、または1回の呼び出しで使う箇所が一部だけなら圧縮・script化候補とする。判断軸・停止条件は残して機械処理をscript化し、別 `.md` への分割は長い手順の一部しか一度に使わない場合の最終手段とする。`scan-commands.sh` と日付別ログは読まない。
+`bash {BASE_DIR}/scripts/scan-skills.sh` だけを実行し、出力のうち行数セクション（全行数・100行超）だけを使う。100行超は内容を読み、決定的記述が大半、または1回の呼び出しで使う箇所が一部だけなら圧縮・script化候補とする。判断軸・停止条件は残して機械処理をscript化し、別 `.md` への分割は長い手順の一部しか一度に使わない場合の最終手段とする。利用実績の判定は `retire` の観点で行い、ここでは行わない。`scan-commands.sh` と日付別ログは読まない。
 
 ### dedup
 
@@ -90,6 +95,8 @@ skill:+2 判断・手順・pitfallを記述可 / +1 既存skillでは不足 / -2
 - {候補またはなし}
 ### AGENTS.md / CLAUDE.md候補
 - {候補またはなし}
+### スキル退避候補
+- {skill}: 最終利用 {date または 未使用} — {参照確認の結果と退避提案}
 ### SKILL.md 圧縮・script化候補
 - {file}: {lines}行 — {判断理由と対処}
 ### ルール二重定義・スキル間重複
@@ -99,4 +106,4 @@ skill:+2 判断・手順・pitfallを記述可 / +1 既存skillでは不足 / -2
   - 提案: {canonical と相互参照方針}
 ```
 
-結果なしの場合も、実行した各セクション内にだけ `候補なし`、`圧縮・script化候補なし`、または `二重定義なし` と出す。
+結果なしの場合も、実行した各セクション内にだけ `候補なし`、`退避候補なし`、`圧縮・script化候補なし`、または `二重定義なし` と出す。
