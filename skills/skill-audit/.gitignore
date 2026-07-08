@@ -1,2 +1,6 @@
-targets.md
-logs/
+*
+!logs
+!scripts
+!.gitignore
+!SKILL.md
+!targets.md.template

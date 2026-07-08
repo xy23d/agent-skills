@@ -1,0 +1,7 @@
+*
+!.gitignore
+!log-bash.sh
+!log-prompt-skill.sh
+!log-skill-usage.sh
+!scan-commands.sh
+!scan-skills.sh

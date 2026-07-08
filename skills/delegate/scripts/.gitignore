@@ -1,0 +1,4 @@
+*
+!.gitignore
+!claude-exec.sh
+!codex-exec.sh
