@@ -11,13 +11,31 @@ body="${2:?Usage: save-context.sh <topic> <body_file>}"
 
 mkdir -p "$DIR"
 cp "$body" "$DIR/$topic.md"
-
-# save も last_loaded を今日の日付で更新する（保存＝その内容を扱った扱い）
 f="$DIR/$topic.md"
-if grep -q '^last_loaded:' "$f"; then
-  sed -i "s/^last_loaded:.*/last_loaded: $today/" "$f"
+
+# フロントマターを save が所有する。本文にフロントマターが無くても必ず健全化するため、
+# 先頭が --- でなければ topic/updated/last_loaded ブロックを合成して前置する。
+# （save 経由で新規作成したトピックが -/- のまま固定化する不具合の根本対策）
+if [ "$(head -n1 "$f")" != "---" ]; then
+  tmp=$(mktemp)
+  {
+    printf -- '---\ntopic: %s\nupdated: %s\nlast_loaded: %s\n---\n\n' "$topic" "$today" "$today"
+    cat "$f"
+  } > "$tmp"
+  mv "$tmp" "$f"
 else
-  sed -i "0,/^---$/{s/^---$/---\nlast_loaded: $today/}" "$f"
+  # 既存フロントマターは updated / last_loaded を当日に更新（無ければ挿入）。
+  # save = その内容を今日扱った、とみなす。
+  if grep -q '^updated:' "$f"; then
+    sed -i "s/^updated:.*/updated: $today/" "$f"
+  else
+    sed -i "0,/^---$/{s/^---$/---\nupdated: $today/}" "$f"
+  fi
+  if grep -q '^last_loaded:' "$f"; then
+    sed -i "s/^last_loaded:.*/last_loaded: $today/" "$f"
+  else
+    sed -i "0,/^---$/{s/^---$/---\nlast_loaded: $today/}" "$f"
+  fi
 fi
 
 bash "$(dirname "$0")/rebuild-index.sh"
