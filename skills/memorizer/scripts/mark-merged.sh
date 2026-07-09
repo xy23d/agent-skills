@@ -10,11 +10,7 @@ shift
 for old in "$@"; do
   f="$DIR/$old.md"
   [ -f "$f" ] || { echo "not found: $old" >&2; continue; }
-  if grep -q '^merged_into:' "$f"; then
-    sed -i "s/^merged_into:.*/merged_into: $merged/" "$f"
-  else
-    sed -i "0,/^---$/{s/^---$/---\nmerged_into: $merged/}" "$f"
-  fi
+  bash "$(dirname "$0")/fm-set.sh" "$f" merged_into "$merged"
 done
 
 bash "$(dirname "$0")/rebuild-index.sh"
