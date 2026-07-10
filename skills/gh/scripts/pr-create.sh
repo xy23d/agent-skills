@@ -6,6 +6,9 @@ WORKTREE_PATH="$1"
 TITLE="$2"
 BODY_FILE="$3"
 BASE="$4"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SKILL_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
+OWNER_ACCOUNT_MAP="$SKILL_DIR/owner-account-map"
 
 if [ -z "$WORKTREE_PATH" ] || [ -z "$TITLE" ] || [ -z "$BODY_FILE" ]; then
   echo "Usage: pr-create.sh <worktree_path> <title> <body_file> [base]" >&2
@@ -49,6 +52,26 @@ if [ -z "$OWNER_REPO" ]; then
 fi
 
 git -C "$WORKTREE_PATH" push -u origin "$BRANCH"
+
+TARGET_ACCOUNT=""
+if [ -f "$OWNER_ACCOUNT_MAP" ]; then
+  TARGET_ACCOUNT=$(awk -v owner="$OWNER" '
+    NF && $1 !~ /^#/ && $1 == owner { print $2; exit }
+  ' "$OWNER_ACCOUNT_MAP")
+fi
+
+if [ -n "$TARGET_ACCOUNT" ]; then
+  PREV_ACCOUNT=$(gh api user --jq .login 2>/dev/null || true)
+  if [ -z "$PREV_ACCOUNT" ]; then
+    echo "warning: owner '$OWNER' maps to gh account '$TARGET_ACCOUNT', but current gh account could not be detected; continuing with current gh auth" >&2
+  elif [ "$TARGET_ACCOUNT" != "$PREV_ACCOUNT" ]; then
+    if gh auth switch --user "$TARGET_ACCOUNT" >/dev/null 2>&1; then
+      trap 'gh auth switch --user "$PREV_ACCOUNT" >/dev/null 2>&1 || true' EXIT
+    else
+      echo "warning: owner '$OWNER' maps to gh account '$TARGET_ACCOUNT', but switching failed; continuing with current gh auth" >&2
+    fi
+  fi
+fi
 
 ARGS=(
   pr create
