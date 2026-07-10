@@ -71,10 +71,12 @@ if [ -n "$TARGET_ACCOUNT" ]; then
   fi
 fi
 
-MERGED_PR_NUMBERS=$(gh pr list --repo "$OWNER_REPO" --head "$BRANCH" --state merged --json number --jq '.[].number' 2>/dev/null || true)
-if [ -n "$MERGED_PR_NUMBERS" ]; then
-  MERGED_PR_LIST=$(printf '%s\n' "$MERGED_PR_NUMBERS" | awk '{ printf "%s#%s", sep, $1; sep=", " }')
-  echo "warning: branch '$BRANCH' already has merged PR(s) $MERGED_PR_LIST in $OWNER_REPO. Confirm this is not adding commits to a merged branch; normally additional changes should be opened from a new branch." >&2
+if MERGED_PR_NUMBERS=$(gh pr list --repo "$OWNER_REPO" --head "$BRANCH" --state merged --json number --jq '.[].number' 2>/dev/null); then
+  if [ -n "$MERGED_PR_NUMBERS" ]; then
+    MERGED_PR_LIST=$(printf '%s\n' "$MERGED_PR_NUMBERS" | awk '{ printf "%s#%s", sep, $1; sep=", " }')
+    echo "error: branch '$BRANCH' already has merged PR(s) $MERGED_PR_LIST in $OWNER_REPO. このブランチは既に merged 済みです。新しいブランチを切って、そのブランチで同じコマンドを再実行してください。" >&2
+    exit 1
+  fi
 fi
 
 git -C "$WORKTREE_PATH" push -u origin "$BRANCH"

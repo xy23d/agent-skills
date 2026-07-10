@@ -52,6 +52,6 @@ bash {BASE_DIR}/scripts/pr-create.sh <worktree_path> <title> <body_file> [base]
 
 `base` は任意。省略時は `gh pr create` の既定に従い、baseリポジトリのデフォルトブランチが使われる。
 
-push 前に同じ head ブランチの merged 済み PR があるか確認し、見つかった場合は PR 番号付きで警告する。警告のみで処理は止めない。
+push 前に同じ head ブランチの merged 済み PR があるか確認し、見つかった場合は push も PR 作成も行わずエラーで停止する。エラーには検知した PR 番号と「このブランチは既に merged 済み。新しいブランチを切って、そのブランチで同じコマンドを再実行する」という次アクションが表示される。新しい変更を出す場合は、現在の作業内容を新ブランチへ移してから同じ `/gh create` コマンドを再実行する。merged PR 確認のための `gh` 照会自体が失敗した場合は、確認不能だけを理由には停止せず、従来どおり push と Draft PR 作成へ進む。
 
 複数のGitHubアカウントで `gh auth` している環境では、`owner-account-map` に `owner account` 形式で対応を書くと、origin の owner に応じて PR 作成時だけ指定アカウントへ切り替える。例: `my-org my-github-login`。`#` で始まる行はコメント。未指定の owner は切り替えず、現在の `gh auth` 状態のまま実行する。実ファイルはマシン固有情報としてGit追跡外で、復元用テンプレートは `owner-account-map.template`。
