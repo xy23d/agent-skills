@@ -5,6 +5,7 @@
 !list-context.sh
 !load-context.sh
 !mark-merged.sh
+!fm-set.sh
 !new-context.sh
 !rebuild-index.sh
 !save-context.sh

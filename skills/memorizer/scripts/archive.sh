@@ -11,7 +11,7 @@ if [ ! -d "$DIR" ]; then
   exit 1
 fi
 
-CUTOFF=$(date -d "-$DAYS days" +%s)
+CUTOFF=$(python3 -c "import time; print(int(time.time()) - $DAYS * 86400)")
 ARCHIVE="$DIR/archive"
 mkdir -p "$ARCHIVE"
 moved=0
@@ -25,11 +25,22 @@ while IFS=$'\t' read -r topic updated last_loaded; do
   ref="$last_loaded"
   { [ -z "$ref" ] || [ "$ref" = "-" ]; } && ref="$updated"
   f="$DIR/$topic.md"
-  if [ "$ref" != "-" ] && [ -n "$ref" ]; then
-    ts=$(date -d "$ref" +%s 2>/dev/null) || ts=$(stat -c %Y "$f" 2>/dev/null || echo 0)
-  else
-    ts=$(stat -c %Y "$f" 2>/dev/null || echo 0)
-  fi
+  # ref（YYYY-MM-DD）を epoch に。パース不能/欠損は mtime、それも無ければ 0。GNU/BSD両対応。
+  ts=$(python3 - "$ref" "$f" <<'PY'
+import datetime
+import os
+import sys
+
+ref, path = sys.argv[1], sys.argv[2]
+try:
+    print(int(datetime.datetime.strptime(ref, "%Y-%m-%d").timestamp()))
+except ValueError:
+    try:
+        print(int(os.path.getmtime(path)))
+    except OSError:
+        print(0)
+PY
+)
   if [ "$ts" -lt "$CUTOFF" ]; then
     mv "$f" "$ARCHIVE/"
     [ -d "$DIR/$topic" ] && mv "$DIR/$topic" "$ARCHIVE/"

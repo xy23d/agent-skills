@@ -26,16 +26,8 @@ if [ "$(head -n1 "$f")" != "---" ]; then
 else
   # 既存フロントマターは updated / last_loaded を当日に更新（無ければ挿入）。
   # save = その内容を今日扱った、とみなす。
-  if grep -q '^updated:' "$f"; then
-    sed -i "s/^updated:.*/updated: $today/" "$f"
-  else
-    sed -i "0,/^---$/{s/^---$/---\nupdated: $today/}" "$f"
-  fi
-  if grep -q '^last_loaded:' "$f"; then
-    sed -i "s/^last_loaded:.*/last_loaded: $today/" "$f"
-  else
-    sed -i "0,/^---$/{s/^---$/---\nlast_loaded: $today/}" "$f"
-  fi
+  bash "$(dirname "$0")/fm-set.sh" "$f" updated "$today"
+  bash "$(dirname "$0")/fm-set.sh" "$f" last_loaded "$today"
 fi
 
 bash "$(dirname "$0")/rebuild-index.sh"
