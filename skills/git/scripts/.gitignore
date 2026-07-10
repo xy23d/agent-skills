@@ -2,4 +2,5 @@
 !.gitignore
 !find-commit.sh
 !remove-worktree.sh
+!untracked.sh
 !worktrees.sh

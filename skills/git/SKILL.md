@@ -4,11 +4,13 @@ description: >
   複数のgit worktreeを一括操作するスキル。worktreeの状態確認や特定コミットの検索で複数回コマンドを叩いているときに使う。
   `/git worktrees [dir]` で全worktreeのブランチ・ahead/behind・未追跡ファイルを一括表示。
   `/git find <hash> [dir]` で特定コミットが各worktreeに含まれるか検索。
+  `/git untracked [dir]` でignoredを含むgit管理外ファイル・ディレクトリを一覧表示。
   `/git rebase <parent> [child]` でrebase（コンフリクト時のルールあり）。
   `/git remove-worktree <branch|path>` でworktreeを削除（失敗時は自己判断で突破せずユーザー報告）。
   以下のときに必ず使うこと：
   「worktreeの状態を確認したい」「各ブランチのリモートとの差分を見たい」→ `/git worktrees`
   「このコミットがどのブランチに入っているか調べたい」→ `/git find`
+  「ignoredを含むgit管理外ファイルを確認したい」→ `/git untracked`
   「rebaseして」→ `/git rebase`
   「worktreeを削除して」→ `/git remove-worktree`
 ---
@@ -35,6 +37,17 @@ bash <base_dir>/scripts/find-commit.sh <hash> [dir]
 - `hash` は前方一致（短縮形OK）
 - `dir` 省略時はカレントディレクトリ
 - 結果は `FOUND` / `none` で各worktreeごとに表示
+
+## `/git untracked [dir]`
+
+```bash
+bash <base_dir>/scripts/untracked.sh [dir]
+```
+
+- `dir` 省略時はカレントディレクトリ
+- ignoredを含むgit管理外ファイル・ディレクトリを一覧表示
+- 対象は単一リポジトリ
+- read-only
 
 ## `/git rebase <parent> [child]`
 
