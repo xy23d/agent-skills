@@ -61,10 +61,23 @@ delegate_refresh_codex_model_cache() {
 }
 
 delegate_refresh_claude_model_cache() {
-  local _cache_file="$1"
+  local cache_file="$1"
+  local tmp_file="${cache_file}.tmp"
+  local url="${DELEGATE_CLAUDE_MODELS_URL:-https://platform.claude.com/docs/en/about-claude/models/overview.md}"
 
-  printf 'error: claude CLI has no official model-listing command in this environment; refusing to invent an alternate source\n' >&2
-  return 1
+  if ! curl -fsSL --max-time "${DELEGATE_CLAUDE_MODELS_TIMEOUT:-20}" "$url" > "$tmp_file"; then
+    rm -f "$tmp_file"
+    printf 'error: failed to refresh claude model cache from public official docs: %s\n' "$url" >&2
+    return 1
+  fi
+
+  if [ ! -s "$tmp_file" ]; then
+    rm -f "$tmp_file"
+    printf 'error: claude model cache refresh returned an empty response: %s\n' "$url" >&2
+    return 1
+  fi
+
+  mv "$tmp_file" "$cache_file"
 }
 
 delegate_refresh_model_cache() {
@@ -96,6 +109,23 @@ delegate_warn_model_tier_drift() {
 
   if [ ! -f "$tier_file" ]; then
     printf 'warning: delegate model tier table is missing: %s\n' "$tier_file" >&2
+    return 0
+  fi
+
+  if [ "$backend" = "claude" ]; then
+    awk -F '\t' -v backend="$backend" '
+      $0 !~ /^#/ && NF >= 4 && $1 == backend { print $2 }
+    ' "$tier_file" | sort -u |
+    while IFS= read -r model || [ -n "$model" ]; do
+      [ -n "$model" ] || continue
+      if ! grep -Fq "$model" "$cache_file"; then
+        printf 'warning: delegate claude model not found in public docs cache: %s\n' "$model" >&2
+        continue
+      fi
+      if grep -Fin -C 2 "$model" "$cache_file" | grep -Eiq 'deprecated|retired'; then
+        printf 'warning: delegate claude model has nearby lifecycle warning in public docs cache: %s\n' "$model" >&2
+      fi
+    done
     return 0
   fi
 
