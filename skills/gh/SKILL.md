@@ -54,4 +54,13 @@ bash {BASE_DIR}/scripts/pr-create.sh <worktree_path> <title> <body_file> [base]
 
 push 前に同じ head ブランチの merged 済み PR があるか確認し、見つかった場合は push も PR 作成も行わずエラーで停止する。エラーには検知した PR 番号と「このブランチは既に merged 済み。新しいブランチを切って、そのブランチで同じコマンドを再実行する」という次アクションが表示される。新しい変更を出す場合は、現在の作業内容を新ブランチへ移してから同じ `/gh create` コマンドを再実行する。merged PR 確認のための `gh` 照会自体が失敗した場合は、確認不能だけを理由には停止せず、従来どおり push と Draft PR 作成へ進む。
 
-複数のGitHubアカウントで `gh auth` している環境では、`owner-account-map` に `owner account` 形式で対応を書くと、origin の owner に応じて PR 作成時だけ指定アカウントへ切り替える。例: `my-org my-github-login`。`#` で始まる行はコメント。未指定の owner は切り替えず、現在の `gh auth` 状態のまま実行する。実ファイルはマシン固有情報としてGit追跡外で、復元用テンプレートは `owner-account-map.template`。
+## 書き込み系 `gh` 操作のアカウント切替
+
+複数のGitHubアカウントで `gh auth` している環境では、`owner-account-map` に `owner account` 形式で対応を書くと、owner に応じて指定アカウントへ切り替えてから `gh` コマンドを実行し、終了後に元のアカウントへ戻す。例: `my-org my-github-login`。`#` で始まる行はコメント。未指定の owner は切り替えず、現在の `gh auth` 状態のまま実行する。実ファイルはマシン固有情報としてGit追跡外で、復元用テンプレートは `owner-account-map.template`。
+
+リモートへの書き込みを伴う `gh` 操作（`pr edit`・`pr comment`・`pr merge` 等）は、`gh` を直接叩かず `scripts/gh-as-owner.sh` 経由で実行する。
+
+```bash
+bash {BASE_DIR}/scripts/gh-as-owner.sh <owner/repo> -- gh pr edit <number> --repo <owner/repo> --title <title>
+bash {BASE_DIR}/scripts/gh-as-owner.sh <owner/repo> -- gh pr comment <number> --repo <owner/repo> --body-file <file>
+```
