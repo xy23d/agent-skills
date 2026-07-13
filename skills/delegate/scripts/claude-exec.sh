@@ -11,6 +11,9 @@
 #     当たらないよう、プロンプトで `git -C <worktree>` を強制する。
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/model-cache.sh"
+
 WORKTREE="${1:-}"
 TASK="${2:-}"
 INPUTS_DIR="${3:-}"
@@ -20,6 +23,8 @@ if [ -z "$WORKTREE" ] || [ -z "$TASK" ]; then
   echo "Usage: claude-exec.sh <worktree> <task_file> [inputs_dir] [selected_context_file]"
   exit 1
 fi
+
+delegate_ensure_model_cache claude
 
 TASK_PATH="$TASK"
 if [ -n "$INPUTS_DIR" ]; then
@@ -50,6 +55,11 @@ fi
 
 if [ -n "$CONTEXT_PROMPT" ]; then
   CONTEXT_PROMPT=$'\n現在のタスクに適用する追加資料は次のとおりです。これらだけを読んでルールを適用し、最終報告に「適用した追加資料」としてファイルパスを明記してください。'"$CONTEXT_PROMPT"
+fi
+
+if [ "${DELEGATE_SKIP_EXEC:-}" = "1" ]; then
+  printf 'delegate: skipped claude exec because DELEGATE_SKIP_EXEC=1\n' >&2
+  exit 0
 fi
 
 claude -p "作業対象のリポジトリは ${WORKTREE} です。${TASK_PATH} を読み、${WORKTREE} 内のファイルに対して対応してください。git 操作はすべて 'git -C ${WORKTREE} ...' で行い、それ以外のリポジトリやディレクトリには触れないこと。${CONTEXT_PROMPT}" \

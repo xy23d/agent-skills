@@ -2,3 +2,4 @@
 !.gitignore
 !claude-exec.sh
 !codex-exec.sh
+!model-cache.sh
