@@ -25,6 +25,18 @@ description: >
 
 rate-limit 等でデフォルトが使えない場合、自動でフォールバックせず、切替先での実行をユーザーに提案して承認を得てから実行する。
 
+### モデル階層とキャッシュ
+
+委譲先モデルの思考力階層は `model-tiers.tsv` に持つ。これは git 管理の判断表で、バックエンド・モデル識別子・階層・確認日を人間/呼び出し側LLMが更新する。実行スクリプトはこの表を書き換えない。
+
+各バックエンドの利用可能モデル一覧は `.model-cache/<backend>-models.json` に週次キャッシュする。このキャッシュは生成物なので git 追跡しない。実行スクリプトの冒頭で、キャッシュの mtime の ISO 週が今週ならそのまま委譲し、キャッシュ不在または週が変わっている場合だけ正規手段で再取得する。
+
+codex は `codex debug models` を使って再取得する。claude は CLI にモデル一覧取得コマンドが無いため、認証不要の Anthropic 公式 docs 公開 Markdown（`https://platform.claude.com/docs/en/about-claude/models/overview.md`）を取得し、既存の週次判定用キャッシュファイルに本文をそのまま保存する。
+
+再取得後、利用可能モデル一覧と `model-tiers.tsv` に差分があれば stderr に警告する。codex は階層表にあるモデルが一覧から消えている場合を retirement 候補、一覧にあるモデルが階層表に無い場合を未分類として扱う。claude は階層表のモデルIDが公式 docs 本文に存在するか、近傍に deprecated / retired があるかを grep ベースで確認する。警告だけなら委譲は続行する。
+
+モデル一覧または claude 公式 docs Markdown の取得に失敗した場合は fail-closed とし、古いキャッシュで続行せず委譲を実行しない。
+
 ## 渡すべき情報
 
 - **何を実装するか**（エンドポイント名・機能の概要）
