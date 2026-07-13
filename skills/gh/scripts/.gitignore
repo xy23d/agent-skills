@@ -1,4 +1,5 @@
 *
 !.gitignore
+!gh-as-owner.sh
 !pr-comments.sh
 !pr-create.sh
