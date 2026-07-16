@@ -95,7 +95,6 @@ Phase 3 の出力先は、デフォルトでは標準出力にする。
 呼び出し元の指定がなく、かつ Phase 3 の出力をファイルとして残す必要がある場合は、固定パスや作業ディレクトリには書かず、必ず使い捨てとして `/tmp` 直下に `preflight-` 接頭辞つきのタスク別ユニーク名で書く。
 
 ```bash
-find /tmp -maxdepth 1 -type f -name 'preflight-*' -mtime +0 -delete
 output="/tmp/preflight-<task>-$(date +%Y%m%d-%H%M%S).md"
 ```
 
