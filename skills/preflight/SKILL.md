@@ -92,15 +92,14 @@ Phase 3 の出力先は、デフォルトでは標準出力にする。
 
 呼び出し元が出力先ファイルを明示した場合は、その指定に従って書き出す。
 
-呼び出し元の指定がなく、かつ Phase 3 の出力をファイルとして残す必要がある場合は、固定パスや作業ディレクトリには書かず、必ず使い捨てとして `/tmp/preflight/` 配下にタスク別のユニーク名で書く。
+呼び出し元の指定がなく、かつ Phase 3 の出力をファイルとして残す必要がある場合は、固定パスや作業ディレクトリには書かず、必ず使い捨てとして `/tmp` 直下に `preflight-` 接頭辞つきのタスク別ユニーク名で書く。
 
 ```bash
-mkdir -p /tmp/preflight
-find /tmp/preflight -maxdepth 1 -type f -mtime +0 -delete
-output="/tmp/preflight/<task>-$(date +%Y%m%d-%H%M%S).md"
+find /tmp -maxdepth 1 -type f -name 'preflight-*' -mtime +0 -delete
+output="/tmp/preflight-<task>-$(date +%Y%m%d-%H%M%S).md"
 ```
 
-`<task>` はタスクを表す短い slug にする。`/tmp` 配下なので再起動で自然消滅し、毎回ユニーク名なので上書き衝突も残留も起きない。
+`<task>` はタスクを表す短い slug にする。`/tmp` 直下なので再起動で自然消滅し、毎回ユニーク名なので上書き衝突も残留も起きない。
 
 ---
 
